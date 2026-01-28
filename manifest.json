@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "TF1 Subs Overlay",
+  "version": "0.1.0",
+  "description": "Display TF1 subtitles in an accessible overlay for language learners",
+  "permissions": [
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.tf1.fr/*",
+    "https://prod-player.tf1.fr/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.tf1.fr/*",
+        "https://prod-player.tf1.fr/*"
+      ],
+      "js": ["content-script.js"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ]
+}
