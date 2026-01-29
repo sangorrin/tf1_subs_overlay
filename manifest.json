@@ -7,13 +7,13 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://www.tf1.fr/*",
+    "https://www.tf1.fr/tf*/*",
     "https://prod-player.tf1.fr/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://www.tf1.fr/*",
+        "https://www.tf1.fr/tf*/*",
         "https://prod-player.tf1.fr/*"
       ],
       "js": ["content-script.js"],
