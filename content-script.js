@@ -56,6 +56,28 @@ if (isMainPage) {
       user-select: text;
     `;
 
+    // Add hover listeners for pause/resume functionality
+    // Send messages to iframe since we can't access it directly due to cross-origin
+    overlay.addEventListener('mouseenter', () => {
+      console.log('[TF1 Subs] Mouse entered overlay - sending pause request to iframe');
+      const iframeElement = document.querySelector('iframe[src*="prod-player.tf1.fr"]');
+      if (iframeElement && iframeElement.contentWindow) {
+        iframeElement.contentWindow.postMessage({
+          type: 'TF1_SUBS_PAUSE'
+        }, '*');
+      }
+    });
+
+    overlay.addEventListener('mouseleave', () => {
+      console.log('[TF1 Subs] Mouse left overlay - sending resume request to iframe');
+      const iframeElement = document.querySelector('iframe[src*="prod-player.tf1.fr"]');
+      if (iframeElement && iframeElement.contentWindow) {
+        iframeElement.contentWindow.postMessage({
+          type: 'TF1_SUBS_RESUME'
+        }, '*');
+      }
+    });
+
     // Wait for DOM and try to append to #player first, fallback to body
     const tryAppend = () => {
       const playerContainer = document.getElementById('player');
@@ -98,9 +120,18 @@ if (isMainPage) {
       console.log('[TF1 Subs] Overlay element:', overlayElement);
       console.log('[TF1 Subs] Overlay in DOM:', document.contains(overlayElement));
 
-      // Update overlay text
-      overlayElement.textContent = event.data.text;
-      console.log('[TF1 Subs] ✓ Overlay text updated');
+      // Check if subtitle text is empty or just dots
+      const subtitleText = event.data.text.trim();
+      if (subtitleText === '' || subtitleText === '...') {
+        // Hide overlay when there's no text or just dots
+        overlayElement.style.display = 'none';
+        console.log('[TF1 Subs] Overlay hidden (empty subtitle or dots)');
+      } else {
+        // Show overlay and update text
+        overlayElement.style.display = 'inline-block';
+        overlayElement.textContent = subtitleText;
+        console.log('[TF1 Subs] ✓ Overlay text updated and displayed');
+      }
     }
   });
 
@@ -110,6 +141,26 @@ if (isMainPage) {
 // Detect subtitle container and send updates to parent
 } else {
   console.log('[TF1 Subs] Starting detection in player iframe...');
+
+  // Listen for pause/resume messages from parent
+  window.addEventListener('message', (event) => {
+    // Accept messages from parent window
+    if (event.data.type === 'TF1_SUBS_PAUSE') {
+      console.log('[TF1 Subs] Received pause request');
+      const videoElement = document.getElementById('ntrs-video-media');
+      if (videoElement && typeof videoElement.pause === 'function') {
+        videoElement.pause();
+        console.log('[TF1 Subs] ✓ Video paused');
+      }
+    } else if (event.data.type === 'TF1_SUBS_RESUME') {
+      console.log('[TF1 Subs] Received resume request');
+      const videoElement = document.getElementById('ntrs-video-media');
+      if (videoElement && typeof videoElement.play === 'function') {
+        videoElement.play();
+        console.log('[TF1 Subs] ✓ Video resumed');
+      }
+    }
+  });
 
   function setupMutationObserver(subtitleContainer) {
     let lastContent = subtitleContainer.textContent.trim();
