@@ -81,7 +81,7 @@ if (isMainPage) {
   // Listen for messages from the iframe
   console.log('[TF1 Subs] Adding message event listener...');
   window.addEventListener('message', (event) => {
-    console.log('[TF1 Subs] 📨 Message received from:', event.origin, 'Type:', event.data?.type);
+    //console.log('[TF1 Subs] 📨 Message received from:', event.origin, 'Type:', event.data?.type);
 
     // Security: verify the message is from the player iframe
     if (!event.origin.includes('prod-player.tf1.fr')) {
